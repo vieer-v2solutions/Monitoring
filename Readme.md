@@ -14,3 +14,5 @@ scrape_configs:
   - job_name: 'my_go_app'
     static_configs:
       - targets: ['localhost:9090'] # Change this to your Go application's address
+```
+

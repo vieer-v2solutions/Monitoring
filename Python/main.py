@@ -1,33 +1,24 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template
 from prometheus_flask_exporter import PrometheusMetrics
-import time
-import os
 import psutil
+import os
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
-# Custom metric to count function calls
 function_calls_counter = metrics.counter(
-    'function_calls_total', 'Total number of function calls'
+    'custom_function_called', 'Total number of function calls'
 )
 
-# Custom metric to measure memory consumption
 memory_usage_gauge = metrics.gauge(
     'memory_usage_bytes', 'Current memory usage in bytes'
 )
 
-# Function to be called
-def process_number(number):
-    # Simulate processing
-    time.sleep(1)
-    print(f"Processing number {number}")
-
-@app.route('/', methods=['GET'])
-def index():
+@app.route("/")
+def hello():
+    function_calls_counter
     return render_template('index.html')
 
-# Update memory usage metric periodically
 @metrics.do_not_track()
 def update_memory_usage():
     process = psutil.Process(os.getpid())
@@ -37,6 +28,5 @@ def update_memory_usage():
 def expose_metrics():
     return metrics.export_http()
 
-if __name__ == '__main__':
-    metrics.start_http_server(8000)
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=False, host="0.0.0.0", port=8000)
